@@ -1,0 +1,393 @@
+<!-- <!DOCTYPE html> -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="//at.alicdn.com/t/font_o5hd5vvqpoqiwwmi.css"
+    />
+    <link rel="stylesheet" href="/styles/styles.css" />
+    <title>SimplyWeather | A simple weather web app</title>
+  </head>
+  <body>
+    <div class="l-weather">
+      <div class="l-weather__app-logo">
+        <div class="c-app-logo">
+          <h1 class="c-app-logo__text">
+            Simply<span
+              id="text-logo-grad"
+              class="c-app-logo__text c-app-logo__text--day"
+              >Weather</span
+            >
+          </h1>
+        </div>
+      </div>
+      <div class="l-weather__visualization">
+        <div id="weather-visualizer" class="c-visualization">
+          <div
+            class="
+              c-sky-background c-sky-background--day c-sky-background--visible
+            "
+          ></div>
+          <div class="c-sky-background c-sky-background--day-rain"></div>
+          <div class="c-sky-background c-sky-background--day-snow"></div>
+          <div class="c-sky-background c-sky-background--night"></div>
+          <div class="c-sky-background c-sky-background--night-rain"></div>
+          <div class="c-sky-background c-sky-background--night-snow"></div>
+          <canvas id="canvas" class="c-visualization__canvas"></canvas>
+          <div id="clear-sky" class="c-visualization__weather">
+            <div class="c-visualization__clear">
+              <div id="sun" class="c-visualization__sun"></div>
+              <img
+                id="moon"
+                src="/images/moon/moon.png"
+                alt=""
+                class="c-visualization__moon"
+              />
+            </div>
+          </div>
+          <div id="few-clouds" class="c-visualization__weather">
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-few-1.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-few-1.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-few-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-few-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+          </div>
+          <div id="scattered-clouds" class="c-visualization__weather">
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-scattered-1.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-scattered-1.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-scattered-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-scattered-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+          </div>
+          <div
+            id="broken-clouds"
+            class="c-visualization__weather c-visualization__weather--visible"
+          >
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-broken-1.png"
+                alt=""
+                class="
+                  c-visualization__cloud-image
+                  c-visualization__cloud-image--day-snow
+                "
+              />
+              <img
+                src="/images/clouds/clouds-broken-1.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-broken-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-broken-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-broken-3.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-broken-3.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+          </div>
+          <div id="overcast-clouds" class="c-visualization__weather">
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-overcast-1.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-overcast-1.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-overcast-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-overcast-2.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-overcast-3.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+              <img
+                src="/images/clouds/clouds-overcast-3.png"
+                alt=""
+                class="c-visualization__cloud-image"
+              />
+            </div>
+          </div>
+          <div id="rain-clouds" class="c-visualization__weather">
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-rain-snow-1.png"
+                alt=""
+                class="
+                  c-visualization__cloud-image
+                  c-visualization__cloud-image--rain
+                "
+              />
+              <img
+                src="/images/clouds/clouds-rain-snow-1.png"
+                alt=""
+                class="
+                  c-visualization__cloud-image
+                  c-visualization__cloud-image--rain
+                "
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-rain-snow-2.png"
+                alt=""
+                class="
+                  c-visualization__cloud-image
+                  c-visualization__cloud-image--rain
+                "
+              />
+              <img
+                src="/images/clouds/clouds-rain-snow-2.png"
+                alt=""
+                class="
+                  c-visualization__cloud-image
+                  c-visualization__cloud-image--rain
+                "
+              />
+            </div>
+            <div class="c-visualization__cloud">
+              <img
+                src="/images/clouds/clouds-rain-snow-3.png"
+                alt=""
+                class="
+                  c-visualization__cloud-image
+                  c-visualization__cloud-image--rain
+                "
+              />
+              <img
+                src="/images/clouds/clouds-rain-snow-3.png"
+                alt=""
+                class="
+                  c-visualization__cloud-image
+                  c-visualization__cloud-image--rain
+                "
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="l-weather__main-info">
+        <div class="c-search-box">
+          <input
+            type="text"
+            name="search"
+            id="search-input"
+            placeholder="search for a city"
+            autocomplete="off"
+            class="c-search-box__input"
+          />
+          <i
+            id="search-button"
+            class="
+              feather
+              icon-search
+              c-search-box__icon c-search-box__icon--day
+            "
+          ></i>
+        </div>
+        <div class="c-main-info">
+          <h2 class="c-main-info__city-name">
+            <span id="city-name" class="c-main-info__city">---</span>,
+            <span id="country" class="c-main-info__country">--</span>
+          </h2>
+          <p class="c-main-info__temperature-celsius">
+            <span
+              class="
+                feather
+                icon-thermometer
+                c-main-info__temperature-celsius--icon
+              "
+            ></span
+            ><span id="temperature-celsius" class="c-main-info__temperature"
+              >--</span
+            >&deg;C
+          </p>
+          <p class="c-main-info__feels-like">
+            Feels like
+            <span id="feels-like" class="c-main-info__feels-like-value">--</span
+            >&deg;C
+          </p>
+          <div
+            id="condition-container"
+            class="c-main-info__weather-condition-container"
+          >
+            <div
+              class="
+                c-sky-background c-sky-background--day c-sky-background--visible
+              "
+            ></div>
+            <div class="c-sky-background c-sky-background--day-rain"></div>
+            <div class="c-sky-background c-sky-background--day-snow"></div>
+            <div class="c-sky-background c-sky-background--night"></div>
+            <div class="c-sky-background c-sky-background--night-rain"></div>
+            <div class="c-sky-background c-sky-background--night-snow"></div>
+            <h3 id="weather-name" class="c-main-info__weather-main">---</h3>
+            <p
+              id="weather-description"
+              class="c-main-info__weather-description"
+            >
+              ---
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="l-weather__more-info">
+        <div class="c-more-info">
+          <ul class="c-more-info__list">
+            <li class="c-more-info__item">
+              <div class="c-more-info__label">
+                <i
+                  class="
+                    feather
+                    icon-sunrise
+                    c-more-info__icon c-more-info__icon--day
+                  "
+                ></i>
+                <h3 class="c-more-info__label-text">Sunrise</h3>
+              </div>
+              <p id="sunrise" class="c-more-info__value">---</p>
+            </li>
+            <li class="c-more-info__item">
+              <div class="c-more-info__label">
+                <i
+                  class="
+                    feather
+                    icon-sunset
+                    c-more-info__icon c-more-info__icon--day
+                  "
+                ></i>
+                <h3 class="c-more-info__label-text">Sunset</h3>
+              </div>
+              <p id="sunset" class="c-more-info__value">---</p>
+            </li>
+            <li class="c-more-info__item">
+              <div class="c-more-info__label">
+                <i
+                  class="
+                    feather
+                    icon-wind
+                    c-more-info__icon c-more-info__icon--day
+                  "
+                ></i>
+                <h3 class="c-more-info__label-text">Wind</h3>
+              </div>
+              <p class="c-more-info__value">
+                <span id="wind-speed">---</span>m/s
+              </p>
+            </li>
+            <li class="c-more-info__item">
+              <div class="c-more-info__label">
+                <i
+                  class="
+                    feather
+                    icon-droplet
+                    c-more-info__icon c-more-info__icon--day
+                  "
+                ></i>
+                <h3 class="c-more-info__label-text">Humidity</h3>
+              </div>
+              <p class="c-more-info__value"><span id="humidity">---</span>%</p>
+            </li>
+            <li class="c-more-info__item">
+              <div class="c-more-info__label">
+                <i
+                  class="
+                    feather
+                    icon-arrow-down
+                    c-more-info__icon c-more-info__icon--day
+                  "
+                ></i>
+                <h3 class="c-more-info__label-text">Pressure</h3>
+              </div>
+              <p class="c-more-info__value">
+                <span id="pressure">---</span>hPa
+              </p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script src="scripts/script.js"></script>
+  </body>
+</html>
