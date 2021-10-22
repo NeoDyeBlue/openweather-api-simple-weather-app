@@ -292,41 +292,44 @@ p {
   padding: 1rem;
 }
 
-.c-search-box__icon {
+.c-search-box__button {
   padding: 1rem 1rem 1rem 1rem;
   font-size: 24px;
   display: block;
+  border: 0;
+  cursor: pointer;
+  background-color: white;
   position: relative;
   -webkit-transition: color 500ms ease, background-color 500ms ease;
   transition: color 500ms ease, background-color 500ms ease;
 }
 
-.c-search-box__icon--day:hover {
+.c-search-box__button--day:hover {
   background-color: #009acb;
   color: white;
 }
 
-.c-search-box__icon--day-rain:hover {
+.c-search-box__button--day-rain:hover {
   background-color: #4e6669;
   color: white;
 }
 
-.c-search-box__icon--day-snow:hover {
+.c-search-box__button--day-snow:hover {
   background-color: #b0b0b0;
   color: white;
 }
 
-.c-search-box__icon--night:hover {
+.c-search-box__button--night:hover {
   background-color: #061d37;
   color: white;
 }
 
-.c-search-box__icon--night-rain:hover {
+.c-search-box__button--night-rain:hover {
   background-color: #0b1026;
   color: white;
 }
 
-.c-search-box__icon--night-snow:hover {
+.c-search-box__button--night-snow:hover {
   background-color: #102849;
   color: white;
 }

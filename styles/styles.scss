@@ -294,10 +294,13 @@ p {
     padding: 1rem;
   }
 
-  &__icon {
+  &__button {
     padding: 1rem 1rem 1rem 1rem;
     font-size: 24px;
     display: block;
+    border: 0;
+    cursor: pointer;
+    background-color: white;
     position: relative;
     transition: color 500ms ease, background-color 500ms ease;
 
