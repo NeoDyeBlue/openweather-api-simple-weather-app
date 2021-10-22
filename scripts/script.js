@@ -24,13 +24,15 @@ const WEATHER_APP = (function () {
   var maxParticles = null;
   var particleSpawnCount = null;
   var maxLightnings = null;
-  var lightningSpawnCount = null;
   var rainSize = { width: null, minHeight: null, maxHeight: null };
   var snowSize = { minRadius: null, maxRadius: null };
+  var atmosphere = null;
+  let atmosphereColor = { first: null, middle: null, last: null };
   var lightningChance = null;
   var isLightning = false;
   var isRaining = false;
   var isSnowing = false;
+  var isAtmosphere = false;
   //main info
   var searchInput = document.getElementById("search-input");
   var searchButton = document.getElementById("search-button");
@@ -128,6 +130,44 @@ const WEATHER_APP = (function () {
       ctx.stroke();
     }
   }
+  class Atmosphere {
+    constructor(firstColor, secondColor, thirdColor) {
+      this.width = canvas.width;
+      this.height = canvas.height;
+      this.firstColor = firstColor;
+      this.secondColor = secondColor;
+      this.thirdColor = thirdColor;
+      this.gradient = ctx.createLinearGradient(
+        this.width / 2,
+        0,
+        this.width / 2,
+        this.height
+      );
+
+      this.gradient.addColorStop(0, this.firstColor);
+      this.gradient.addColorStop(0.3, this.secondColor);
+      this.gradient.addColorStop(1, this.thirdColor);
+    }
+
+    update() {
+      this.width = canvas.width;
+      this.height = canvas.height;
+      this.gradient = ctx.createLinearGradient(
+        this.width / 2,
+        0,
+        this.width / 2,
+        this.height
+      );
+      this.gradient.addColorStop(0, this.firstColor);
+      this.gradient.addColorStop(0.3, this.secondColor);
+      this.gradient.addColorStop(1, this.thirdColor);
+    }
+
+    draw() {
+      ctx.fillStyle = this.gradient;
+      ctx.fillRect(0, 0, this.width, this.height);
+    }
+  }
   function init() {
     addListener();
     animate();
@@ -192,12 +232,12 @@ const WEATHER_APP = (function () {
   }
 
   function changeColors(dayOrNight, weather) {
+    let modifierText = "";
+
     if (weather == "thundestorm" || weather == "rain" || weather == "drizzle") {
-      weather = "-rain";
+      modifierText = "-rain";
     } else if (weather == "snow") {
-      weather = "-snow";
-    } else {
-      weather = "";
+      modifierText = "-snow";
     }
 
     if (dayOrNight == "day") {
@@ -209,7 +249,10 @@ const WEATHER_APP = (function () {
     }
 
     skies.forEach((sky) => {
-      if (sky.classList[1] == sky.classList[0] + `--${dayOrNight}${weather}`) {
+      if (
+        sky.classList[1] ==
+        sky.classList[0] + `--${dayOrNight}${modifierText}`
+      ) {
         sky.classList.add(sky.classList[0] + "--visible");
       } else {
         sky.classList.remove(sky.classList[0] + "--visible");
@@ -218,21 +261,21 @@ const WEATHER_APP = (function () {
 
     clouds.forEach((cloud) => {
       cloud.className = cloud.classList[0];
-      cloud.classList.add(cloud.classList[0] + `--${dayOrNight}${weather}`);
-      // if (
-      //   window.getComputedStyle(cloud.parentNode.parentNode).visibility !==
-      //   "hidden"
-      // ) {
-      //   cloud.className = cloud.classList[0];
-      //   cloud.classList.add(cloud.classList[0] + `--${dayOrNight}${weather}`);
-      // }
+      cloud.classList.add(
+        cloud.classList[0] + `--${dayOrNight}${modifierText}`
+      );
     });
 
     if (
       weather == "fog" ||
       weather == "smoke" ||
       weather == "haze" ||
-      weather == "mist"
+      weather == "mist" ||
+      weather == "sand" ||
+      weather == "dust" ||
+      weather == "ash" ||
+      weather == "squall" ||
+      weather == "tornado"
     ) {
       blurs.forEach((blur) => {
         blur.className = blur.classList[0];
@@ -242,17 +285,17 @@ const WEATHER_APP = (function () {
 
     labelIcons.forEach((icon) => {
       icon.classList.remove(icon.classList[3]);
-      icon.classList.add(icon.classList[2] + `--${dayOrNight}${weather}`);
+      icon.classList.add(icon.classList[2] + `--${dayOrNight}${modifierText}`);
     });
 
     searchButton.classList.remove(searchButton.classList[3]);
     searchButton.classList.add(
-      searchButton.classList[2] + `--${dayOrNight}${weather}`
+      searchButton.classList[2] + `--${dayOrNight}${modifierText}`
     );
 
     gradLogoText.className = gradLogoText.classList[0];
     gradLogoText.classList.add(
-      gradLogoText.classList[0] + `--${dayOrNight}${weather}`
+      gradLogoText.classList[0] + `--${dayOrNight}${modifierText}`
     );
   }
 
@@ -286,9 +329,14 @@ const WEATHER_APP = (function () {
       data.mainWeather == "Mist" ||
       data.mainWeather == "Haze" ||
       data.mainWeather == "Smoke" ||
-      data.mainWeather == "Fog"
+      data.mainWeather == "Fog" ||
+      data.mainWeather == "Dust" ||
+      data.mainWeather == "Sand" ||
+      data.mainWeather == "Ash" ||
+      data.mainWeather == "Squall" ||
+      data.mainWeather == "Tornado"
     ) {
-      parallaxViz = "blurry";
+      parallaxViz = "atmosphere";
     }
 
     weatherVisualizers.forEach((viz) => {
@@ -303,6 +351,28 @@ const WEATHER_APP = (function () {
   function changeCanvasValues(weather, description) {
     let lightningChances = { low: 0.003, normal: 0.005, high: 0.007 };
     let lightningCounts = { light: 5, medium: 7, heavy: 9 };
+    let atmosphereColors = {
+      blurs: {
+        color1: "rgba(255, 255, 255, 0)",
+        color2: "rgba(226, 226, 226, 0.5)",
+        color3: "rgba(213, 213, 213, 1)",
+      },
+      dusts: {
+        color1: "rgba(235, 202, 151, 0.3)",
+        color2: "rgba(162, 127, 71, 0.5)",
+        color3: "rgba(190, 116, 55, 1)",
+      },
+      ash: {
+        color1: "rgba(193, 193, 193, 0.3)",
+        color2: "rgba(148, 148, 148, 0.5)",
+        color3: "rgba(85, 85, 85, 1)",
+      },
+      squalls: {
+        color1: "rgba(177, 177, 177, 0.3)",
+        color2: "rgba(139, 139, 139, 0.5)",
+        color3: "rgba(93, 93, 93, 1)",
+      },
+    };
     let particleCounts = {
       light: { spawnCount: 1, max: 100 },
       medium: { spawnCount: 5, max: 200 },
@@ -319,11 +389,13 @@ const WEATHER_APP = (function () {
 
     if (weather == "Thunderstorm") {
       isLightning = true;
+      isAtmosphere = false;
       if (description == "thunderstorm with light rain") {
         lightningChance = lightningChances.normal;
-        lightningSpawnCount = lightningCounts.light;
+        maxLightnings = lightningCounts.light;
         isSnowing = false;
         isRaining = true;
+
         maxParticles = particleCounts.light.max;
         particleSpawnCount = particleCounts.light.spawnCount;
         rainSize.width = particleSizes.rain.width;
@@ -331,7 +403,7 @@ const WEATHER_APP = (function () {
         rainSize.maxHeight = particleSizes.rain.maxHeight;
       } else if (description == "thunderstorm with rain") {
         lightningChance = lightningChances.normal;
-        lightningSpawnCount = lightningCounts.light;
+        maxLightnings = lightningCounts.light;
         isSnowing = false;
         isRaining = true;
         maxParticles = particleCounts.medium.max;
@@ -341,7 +413,7 @@ const WEATHER_APP = (function () {
         rainSize.maxHeight = particleSizes.rain.maxHeight;
       } else if (description == "thunderstorm with heavy rain") {
         lightningChance = lightningChances.normal;
-        lightningSpawnCount = lightningCounts.light;
+        maxLightnings = lightningCounts.light;
         isSnowing = false;
         isRaining = true;
         maxParticles = particleCounts.heavy.max;
@@ -351,27 +423,28 @@ const WEATHER_APP = (function () {
         rainSize.maxHeight = particleSizes.rain.maxHeight;
       } else if (description == "light thunderstorm") {
         lightningChance = lightningChances.low;
-        lightningSpawnCount = lightningCounts.light;
+        maxLightnings = lightningCounts.light;
         isRaining = false;
         isSnowing = false;
       } else if (description == "thunderstorm") {
         lightningChance = lightningChances.normal;
-        lightningSpawnCount = lightningCounts.medium;
+        maxLightnings = lightningCounts.medium;
         isRaining = false;
         isSnowing = false;
       } else if (description == "heavy thunderstorm") {
         console.log("true");
         lightningChance = lightningChances.high;
-        lightningSpawnCount = lightningCounts.heavy;
+        maxLightnings = lightningCounts.heavy;
         isRaining = false;
         isSnowing = false;
       } else if (description == "ragged thunderstorm") {
         lightningChance = lightningChances.normal;
+        maxLightnings = lightningCounts.medium;
         isRaining = false;
         isSnowing = false;
       } else if (description == "thunderstorm with light drizzle") {
         lightningChance = lightningChances.low;
-        lightningSpawnCount = lightningCounts.light;
+        maxLightnings = lightningCounts.light;
         isRaining = true;
         isSnowing = false;
         maxParticles = particleCounts.light.max;
@@ -381,7 +454,7 @@ const WEATHER_APP = (function () {
         rainSize.maxHeight = particleSizes.drizzle.maxHeight;
       } else if (description == "thunderstorm with drizzle") {
         lightningChance = lightningChances.low;
-        lightningSpawnCount = lightningCounts.light;
+        maxLightnings = lightningCounts.light;
         isRaining = true;
         isSnowing = false;
         maxParticles = particleCounts.medium.max;
@@ -391,7 +464,7 @@ const WEATHER_APP = (function () {
         rainSize.maxHeight = particleSizes.drizzle.maxHeight;
       } else if (description == "thunderstorm with heavy drizzle") {
         lightningChance = lightningChances.low;
-        lightningSpawnCount = lightningCounts.light;
+        maxLightnings = lightningCounts.light;
         isRaining = true;
         isSnowing = false;
         maxParticles = particleCounts.heavy.max;
@@ -404,6 +477,7 @@ const WEATHER_APP = (function () {
       isLightning = false;
       isSnowing = false;
       isRaining = true;
+      isAtmosphere = false;
       rainSize.width = particleSizes.drizzle.width;
       rainSize.minHeight = particleSizes.drizzle.minHeight;
       rainSize.maxHeight = particleSizes.drizzle.maxHeight;
@@ -445,6 +519,7 @@ const WEATHER_APP = (function () {
       isLightning = false;
       isSnowing = false;
       isRaining = true;
+      isAtmosphere = false;
       rainSize.width = particleSizes.rain.width;
       rainSize.minHeight = particleSizes.rain.minHeight;
       rainSize.maxHeight = particleSizes.rain.maxHeight;
@@ -477,6 +552,7 @@ const WEATHER_APP = (function () {
     } else if (weather == "Snow") {
       isLightning = false;
       isSnowing = true;
+      isAtmosphere = false;
       snowSize.minRadius = particleSizes.snow.minRadius;
       snowSize.maxRadius = particleSizes.snow.maxRadius;
       if (
@@ -515,10 +591,53 @@ const WEATHER_APP = (function () {
         rainSize.minHeight = particleSizes.rain.minHeight;
         rainSize.maxHeight = particleSizes.rain.maxHeight;
       }
+    } else if (
+      weather == "Fog" ||
+      weather == "Smoke" ||
+      weather == "Haze" ||
+      weather == "Mist" ||
+      weather == "Sand" ||
+      weather == "Dust" ||
+      weather == "Ash" ||
+      weather == "Squall" ||
+      weather == "Tornado"
+    ) {
+      isAtmosphere = true;
+      isRaining = false;
+      isLightning = false;
+      isSnowing = false;
+
+      if (
+        description == "mist" ||
+        description == "smoke" ||
+        description == "haze" ||
+        description == "fog"
+      ) {
+        atmosphereColor.first = atmosphereColors.blurs.color1;
+        atmosphereColor.middle = atmosphereColors.blurs.color2;
+        atmosphereColor.last = atmosphereColors.blurs.color3;
+      } else if (
+        description == "sand" ||
+        description == "dust" ||
+        description == "sand/ dust whirls"
+      ) {
+        atmosphereColor.first = atmosphereColors.dusts.color1;
+        atmosphereColor.middle = atmosphereColors.dusts.color2;
+        atmosphereColor.last = atmosphereColors.dusts.color3;
+      } else if (description == "squalls" || description == "tornado") {
+        atmosphereColor.first = atmosphereColors.squalls.color1;
+        atmosphereColor.middle = atmosphereColors.squalls.color2;
+        atmosphereColor.last = atmosphereColors.squalls.color3;
+      } else if (description == "volcanic ash") {
+        atmosphereColor.first = atmosphereColors.ash.color1;
+        atmosphereColor.middle = atmosphereColors.ash.color2;
+        atmosphereColor.last = atmosphereColors.ash.color3;
+      }
     } else {
       isRaining = false;
       isLightning = false;
       isSnowing = false;
+      isAtmosphere = false;
     }
   }
 
@@ -545,6 +664,10 @@ const WEATHER_APP = (function () {
         lightnings.splice(i, 1);
         i--;
       }
+    }
+    if (atmosphere && isAtmosphere) {
+      atmosphere.update();
+      atmosphere.draw();
     }
   }
 
@@ -574,13 +697,19 @@ const WEATHER_APP = (function () {
 
     if (isLightning) {
       let chance = Math.random();
-      if (chance < lightningChance && lightnings.length <= 0) {
-        for (i = 0; i < lightningSpawnCount; i++) {
-          ln = new Lightning();
-          lightnings.push(ln);
-          ln.makePaths();
-        }
+      if (chance < lightningChance && lightnings.length <= maxLightnings) {
+        ln = new Lightning();
+        lightnings.push(ln);
+        ln.makePaths();
       }
+    }
+
+    if (isAtmosphere) {
+      atmosphere = new Atmosphere(
+        atmosphereColor.first,
+        atmosphereColor.middle,
+        atmosphereColor.last
+      );
     }
   }
 
