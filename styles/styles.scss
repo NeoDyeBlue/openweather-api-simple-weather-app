@@ -200,8 +200,7 @@ p {
 
   &__visualization {
     grid-column: 1 / -1;
-    min-height: 40vh;
-    // min-height: 400px;
+    height: clamp(250px, 40vh, 300px);
     border-radius: 1rem;
     box-shadow: $--box-shadow;
     overflow: hidden;
@@ -665,9 +664,9 @@ p {
     padding: 1rem 0;
     border-bottom: 1px solid lightgray;
 
-    // &:last-child {
-    //   grid-column: auto / span 2;
-    // }
+    &:last-child {
+      border: 0;
+    }
   }
 
   &__label {
@@ -714,8 +713,20 @@ p {
     padding: 0 0.5rem;
   }
 
+  &__source-label {
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  &__source-image {
+    display: block;
+    width: 100%;
+    max-width: 100px;
+    height: auto;
+  }
+
   &__value {
-    font-size: 1.3rem;
+    font-size: 1rem;
     padding: 1rem 0;
 
     &--fadein {
