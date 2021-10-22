@@ -72,39 +72,29 @@ $--night-snow-gradient: linear-gradient(
   rgba(53, 71, 95, 1) 100%
 );
 
-$--blurry-layer: linear-gradient(
-  180deg,
-  rgba(255, 255, 255, 0) 0%,
-  rgba(226, 226, 226, 0.5) 50%,
-  rgba(213, 213, 213, 1) 100%
-);
-
-$--dust-layer: linear-gradient(
-  180deg,
-  rgba(235, 202, 151, 0.3) 0%,
-  rgba(162, 127, 71, 0.5) 30%,
-  rgba(190, 116, 55, 1) 100%
-);
-
-$--ash-layer: linear-gradient(
-  180deg,
-  rgba(193, 193, 193, 0.3) 0%,
-  rgba(148, 148, 148, 0.5) 30%,
-  rgba(85, 85, 85, 1) 100%
-);
-
-$--squal-tornado-layer: linear-gradient(
-  180deg,
-  rgba(177, 177, 177, 0.3) 0%,
-  rgba(139, 139, 139, 0.5) 30%,
-  rgba(93, 93, 93, 1) 100%
-);
-
 $--text-color: #555555;
 $--box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.07),
   0 4px 8px rgba(0, 0, 0, 0.07), 0 8px 16px rgba(0, 0, 0, 0.07),
   0 16px 32px rgba(0, 0, 0, 0.07), 0 32px 64px rgba(0, 0, 0, 0.07);
 // $--box-shadow: none;
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 *,
 ::before,
@@ -412,6 +402,12 @@ p {
     color: $--text-color;
     border-bottom: 1px solid lightgray;
     width: 100%;
+    word-break: break-word;
+    // transition: opacity 500ms ease;
+
+    &--fadein {
+      animation: fade-in 500ms ease;
+    }
   }
 
   &__temperature-celsius {
@@ -426,12 +422,20 @@ p {
     &--icon {
       font-size: 2rem;
     }
+
+    &--fadein {
+      animation: fade-in 500ms ease;
+    }
   }
 
   &__feels-like {
     color: gray;
     width: 100%;
     text-align: center;
+
+    &--fadein {
+      animation: fade-in 500ms ease;
+    }
   }
 
   &__weather-condition-container {
@@ -455,6 +459,10 @@ p {
     // border-bottom: 2px solid white;
     width: 100%;
     z-index: 1;
+
+    &--fadein {
+      animation: fade-in 500ms ease;
+    }
   }
 
   &__weather-description {
@@ -464,6 +472,10 @@ p {
     padding: 0.5rem 0;
     font-size: 1rem;
     z-index: 1;
+
+    &--fadein {
+      animation: fade-in 500ms ease;
+    }
   }
 }
 
@@ -634,24 +646,6 @@ p {
   }
 }
 
-@keyframes marquee {
-  0% {
-    transform: translate3d(-100%, 0, 0);
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes rise {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
 //more-info-------------------------------------
 .c-more-info {
   overflow-x: auto;
@@ -742,5 +736,9 @@ p {
   &__value {
     font-size: 1.3rem;
     padding: 1rem 0;
+
+    &--fadein {
+      animation: fade-in 500ms ease;
+    }
   }
 }

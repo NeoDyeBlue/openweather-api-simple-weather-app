@@ -49,6 +49,7 @@ const WEATHER_APP = (function () {
   var windSpeedText = document.getElementById("wind-speed");
   var humidityText = document.getElementById("humidity");
   var pressureText = document.getElementById("pressure");
+  var valueContainers = [];
   //classes
   class RainParticle {
     constructor(width, heightMin, heightMax) {
@@ -77,6 +78,7 @@ const WEATHER_APP = (function () {
       this.color = `rgba(255, 255, 255, ${Math.random() * 0.75 + 0.5})`;
       this.speedX = Math.random() * 1 - 0.5;
       this.speedY = Math.random() * 0.5 + 0.3;
+      this.created = false;
     }
 
     update() {
@@ -169,11 +171,23 @@ const WEATHER_APP = (function () {
     }
   }
   function init() {
-    addListener();
+    listTextValueContainers();
     animate();
+    addListener();
     canvas.width = weatherVisualizerContainer.clientWidth;
     canvas.height = weatherVisualizerContainer.clientHeight;
     getWeatherData(DEFAULT_CITY, KEY);
+  }
+
+  function listTextValueContainers() {
+    valueContainers.push(cityText.parentNode);
+    valueContainers.push(tempCelsiusText.parentNode);
+    valueContainers.push(tempFeelsLikeText.parentNode);
+    valueContainers.push(mainWeatherText);
+    valueContainers.push(weatherDescriptionText);
+    valueContainers.push(windSpeedText.parentNode);
+    valueContainers.push(humidityText.parentNode);
+    valueContainers.push(pressureText.parentNode);
   }
 
   function getWeatherData(city, key) {
@@ -309,6 +323,10 @@ const WEATHER_APP = (function () {
     windSpeedText.textContent = data.windSpeed;
     humidityText.textContent = data.humidity;
     pressureText.textContent = data.pressure;
+
+    valueContainers.forEach((container) => {
+      container.classList.add(container.classList[0] + "--fadein");
+    });
   }
 
   function changeParallax(data) {
@@ -722,6 +740,11 @@ const WEATHER_APP = (function () {
 
   function addListener() {
     searchButton.addEventListener("click", searchWeatherData);
+    valueContainers.forEach((container) => {
+      container.addEventListener("animationend", function () {
+        this.classList.remove(this.classList[0] + "--fadein");
+      });
+    });
     window.addEventListener("resize", resizeCanvas);
     searchInput.addEventListener("keyup", function (event) {
       if (event.key === "Enter") {
