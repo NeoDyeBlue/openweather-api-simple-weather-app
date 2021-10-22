@@ -73,12 +73,11 @@ const WEATHER_APP = (function () {
   class SnowParticle {
     constructor(radiusMin, radiusMax) {
       this.x = Math.random() * canvas.width + 1;
-      this.y = Math.random() * 10 + 1;
+      this.y = Math.random() * 5 + 1;
       this.radius = Math.random() * radiusMax + radiusMin;
       this.color = `rgba(255, 255, 255, ${Math.random() * 0.75 + 0.5})`;
       this.speedX = Math.random() * 1 - 0.5;
       this.speedY = Math.random() * 0.5 + 0.3;
-      this.created = false;
     }
 
     update() {
@@ -88,10 +87,8 @@ const WEATHER_APP = (function () {
 
     draw() {
       ctx.fillStyle = this.color;
-      // ctx.fillStyle = "white";
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-      // ctx.shadowColor = "white";
       ctx.shadowBlur = "100";
       ctx.fill();
     }
@@ -185,6 +182,8 @@ const WEATHER_APP = (function () {
     valueContainers.push(tempFeelsLikeText.parentNode);
     valueContainers.push(mainWeatherText);
     valueContainers.push(weatherDescriptionText);
+    valueContainers.push(sunriseText);
+    valueContainers.push(sunsetText);
     valueContainers.push(windSpeedText.parentNode);
     valueContainers.push(humidityText.parentNode);
     valueContainers.push(pressureText.parentNode);
@@ -204,12 +203,13 @@ const WEATHER_APP = (function () {
       country: data.sys.country,
       mainWeather: data.weather[0].main,
       weatherDescription: data.weather[0].description,
-      // mainWeather: "Haze",
-      // weatherDescription: "haze",
+      // mainWeather: "Snow",
+      // weatherDescription: "snow",
       temperature: Math.floor(data.main.temp),
       feelsLike: Math.floor(data.main.feels_like),
       sunrise: data.sys.sunrise,
       sunset: data.sys.sunset,
+      timezone: data.timezone,
       windSpeed: data.wind.speed,
       humidity: data.main.humidity,
       pressure: data.main.pressure,
@@ -223,29 +223,90 @@ const WEATHER_APP = (function () {
     getWeatherData(city, key);
   }
 
-  function getDayOrNight(sunrise, sunset) {
-    let UTCDate = Math.floor(new Date().getTime() / 1000);
-    let currTime = new Date(UTCDate * 1000);
-    let sunriseTime = new Date(sunrise * 1000);
-    let sunsetTime = new Date(sunset * 1000);
-    if (currTime < sunriseTime || currTime > sunsetTime) {
-      return "night";
+  function getTime(sunriseUTC, sunsetUTC, timezone) {
+    let UTCDate = new Date().getTime() / 1000;
+    let currTime = new Date((UTCDate + timezone) * 1000);
+    let sunrise = new Date((sunriseUTC + timezone) * 1000);
+    let sunset = new Date((sunsetUTC + timezone) * 1000);
+    daynight = "";
+    //current time
+    let timeHour =
+      currTime.getUTCHours() < 10
+        ? "0" + currTime.getUTCHours()
+        : currTime.getUTCHours();
+    let timeMinutes =
+      currTime.getUTCMinutes() < 10
+        ? "0" + currTime.getUTCMinutes()
+        : currTime.getUTCMinutes();
+    let timeSeconds =
+      currTime.getUTCSeconds() < 10
+        ? "0" + currTime.getUTCSeconds()
+        : currTime.getUTCSeconds();
+    //sunrise format
+    let sunriseHour =
+      sunrise.getUTCHours() < 10
+        ? "0" + sunrise.getUTCHours()
+        : sunrise.getUTCHours();
+    let sunriseMinutes =
+      sunrise.getUTCMinutes() < 10
+        ? "0" + sunrise.getUTCMinutes()
+        : sunrise.getUTCMinutes();
+    let sunriseSeconds =
+      sunrise.getUTCSeconds() < 10
+        ? "0" + sunrise.getUTCSeconds()
+        : sunrise.getUTCSeconds();
+    //sunset format
+    let sunsetHour =
+      sunset.getUTCHours() < 10
+        ? "0" + sunset.getUTCHours()
+        : sunset.getUTCHours();
+    let sunsetMinutes =
+      sunset.getUTCMinutes() < 10
+        ? "0" + sunset.getUTCMinutes()
+        : sunset.getUTCMinutes();
+    let sunsetSeconds =
+      sunset.getUTCSeconds() < 10
+        ? "0" + sunset.getUTCSeconds()
+        : sunset.getUTCSeconds();
+
+    let timezoneTime = `${timeHour}:${timeMinutes}:${timeSeconds}`;
+    let sunriseTime = `${sunriseHour}:${sunriseMinutes}:${sunriseSeconds}`;
+    let sunsetTime = `${sunsetHour}:${sunriseMinutes}:${sunsetSeconds}`;
+
+    if (timezoneTime < sunriseTime || timezoneTime > sunsetTime) {
+      daynight = "night";
     } else {
-      return "day";
+      daynight = "day";
     }
+
+    return {
+      daynight,
+      sunriseHour,
+      sunriseMinutes,
+      sunsetHour,
+      sunsetMinutes,
+    };
+    // let sunriseTime = new Date(sunrise * 1000);
+    // let sunsetTime = new Date(sunset * 1000);
+    // if (currTime < sunriseTime || currTime > sunsetTime) {
+    //   return "night";
+    // } else {
+    //   return "day";
+    // }
   }
 
   function changeAppStylesAndValues(data) {
-    let dayOrNight = getDayOrNight(data.sunrise, data.sunset);
+    let times = getTime(data.sunrise, data.sunset, data.timezone);
     let weather = data.mainWeather.toLowerCase();
+    let description = data.weatherDescription.toLowerCase();
 
-    changeParallax(data);
-    changeColors(dayOrNight, weather);
-    changeCanvasValues(data.mainWeather, data.weatherDescription.toLowerCase());
-    changeValues(data);
+    changeParallax(weather, description);
+    changeColors(times, weather);
+    changeCanvasValues(weather, description);
+    changeValues(times, data);
   }
 
-  function changeColors(dayOrNight, weather) {
+  function changeColors(time, weather) {
     let modifierText = "";
 
     if (weather == "thundestorm" || weather == "rain" || weather == "drizzle") {
@@ -254,7 +315,7 @@ const WEATHER_APP = (function () {
       modifierText = "-snow";
     }
 
-    if (dayOrNight == "day") {
+    if (time.daynight == "day") {
       sun.classList.add(sun.classList[0] + "--visible");
       moon.className = "c-visualization__moon";
     } else {
@@ -265,7 +326,7 @@ const WEATHER_APP = (function () {
     skies.forEach((sky) => {
       if (
         sky.classList[1] ==
-        sky.classList[0] + `--${dayOrNight}${modifierText}`
+        sky.classList[0] + `--${time.daynight}${modifierText}`
       ) {
         sky.classList.add(sky.classList[0] + "--visible");
       } else {
@@ -276,7 +337,7 @@ const WEATHER_APP = (function () {
     clouds.forEach((cloud) => {
       cloud.className = cloud.classList[0];
       cloud.classList.add(
-        cloud.classList[0] + `--${dayOrNight}${modifierText}`
+        cloud.classList[0] + `--${time.daynight}${modifierText}`
       );
     });
 
@@ -299,25 +360,29 @@ const WEATHER_APP = (function () {
 
     labelIcons.forEach((icon) => {
       icon.classList.remove(icon.classList[3]);
-      icon.classList.add(icon.classList[2] + `--${dayOrNight}${modifierText}`);
+      icon.classList.add(
+        icon.classList[2] + `--${time.daynight}${modifierText}`
+      );
     });
 
     searchButton.classList.remove(searchButton.classList[3]);
     searchButton.classList.add(
-      searchButton.classList[2] + `--${dayOrNight}${modifierText}`
+      searchButton.classList[2] + `--${time.daynight}${modifierText}`
     );
 
     gradLogoText.className = gradLogoText.classList[0];
     gradLogoText.classList.add(
-      gradLogoText.classList[0] + `--${dayOrNight}${modifierText}`
+      gradLogoText.classList[0] + `--${time.daynight}${modifierText}`
     );
   }
 
-  function changeValues(data) {
+  function changeValues(time, data) {
     cityText.textContent = data.cityName;
     countryText.textContent = data.country;
     tempCelsiusText.textContent = data.temperature;
     tempFeelsLikeText.textContent = data.feelsLike;
+    sunriseText.textContent = `${time.sunriseHour}:${time.sunriseMinutes}`;
+    sunsetText.textContent = `${time.sunsetHour}:${time.sunsetMinutes}`;
     mainWeatherText.textContent = data.mainWeather;
     weatherDescriptionText.textContent = data.weatherDescription;
     windSpeedText.textContent = data.windSpeed;
@@ -329,30 +394,30 @@ const WEATHER_APP = (function () {
     });
   }
 
-  function changeParallax(data) {
-    let parallaxViz = null;
+  function changeParallax(weather, description) {
+    let parallaxViz = "";
 
-    if (data.mainWeather == "Clouds") {
-      parallaxViz = data.weatherDescription.toLowerCase().split(" ").join("-");
-    } else if (data.mainWeather == "Clear") {
+    if (weather == "clouds") {
+      parallaxViz = description.toLowerCase().split(" ").join("-");
+    } else if (weather == "clear") {
       parallaxViz = "clear-sky";
     } else if (
-      data.mainWeather == "Rain" ||
-      data.mainWeather == "Thunderstorm" ||
-      data.mainWeather == "Drizzle" ||
-      data.mainWeather == "Snow"
+      weather == "rain" ||
+      weather == "thunderstorm" ||
+      weather == "drizzle" ||
+      weather == "snow"
     ) {
       parallaxViz = "rain-clouds";
     } else if (
-      data.mainWeather == "Mist" ||
-      data.mainWeather == "Haze" ||
-      data.mainWeather == "Smoke" ||
-      data.mainWeather == "Fog" ||
-      data.mainWeather == "Dust" ||
-      data.mainWeather == "Sand" ||
-      data.mainWeather == "Ash" ||
-      data.mainWeather == "Squall" ||
-      data.mainWeather == "Tornado"
+      weather == "mist" ||
+      weather == "haze" ||
+      weather == "smoke" ||
+      weather == "fog" ||
+      weather == "dust" ||
+      weather == "sand" ||
+      weather == "ash" ||
+      weather == "squall" ||
+      weather == "tornado"
     ) {
       parallaxViz = "atmosphere";
     }
@@ -405,7 +470,7 @@ const WEATHER_APP = (function () {
       snow: { minRadius: 1, maxRadius: 5 },
     };
 
-    if (weather == "Thunderstorm") {
+    if (weather == "thunderstorm") {
       isLightning = true;
       isAtmosphere = false;
       if (description == "thunderstorm with light rain") {
@@ -491,7 +556,7 @@ const WEATHER_APP = (function () {
         rainSize.minHeight = particleSizes.drizzle.minHeight;
         rainSize.maxHeight = particleSizes.drizzle.maxHeight;
       }
-    } else if (weather == "Drizzle") {
+    } else if (weather == "drizzle") {
       isLightning = false;
       isSnowing = false;
       isRaining = true;
@@ -533,7 +598,7 @@ const WEATHER_APP = (function () {
         rainSize.minHeight = particleSizes.drizzleRain.minHeight;
         rainSize.maxHeight = particleSizes.drizzleRain.maxHeight;
       }
-    } else if (weather == "Rain") {
+    } else if (weather == "rain") {
       isLightning = false;
       isSnowing = false;
       isRaining = true;
@@ -567,7 +632,7 @@ const WEATHER_APP = (function () {
         maxParticles = particleCounts.extreme.max;
         particleSpawnCount = particleCounts.extreme.spawnCount;
       }
-    } else if (weather == "Snow") {
+    } else if (weather == "snow") {
       isLightning = false;
       isSnowing = true;
       isAtmosphere = false;
@@ -610,15 +675,15 @@ const WEATHER_APP = (function () {
         rainSize.maxHeight = particleSizes.rain.maxHeight;
       }
     } else if (
-      weather == "Fog" ||
-      weather == "Smoke" ||
-      weather == "Haze" ||
-      weather == "Mist" ||
-      weather == "Sand" ||
-      weather == "Dust" ||
-      weather == "Ash" ||
-      weather == "Squall" ||
-      weather == "Tornado"
+      weather == "fog" ||
+      weather == "smoke" ||
+      weather == "haze" ||
+      weather == "mist" ||
+      weather == "sand" ||
+      weather == "dust" ||
+      weather == "ash" ||
+      weather == "squall" ||
+      weather == "tornado"
     ) {
       isAtmosphere = true;
       isRaining = false;
