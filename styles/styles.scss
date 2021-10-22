@@ -68,8 +68,8 @@ $--night-snow-gradient: linear-gradient(
 
 $--blurry-layer: linear-gradient(
   180deg,
-  rgba(255, 255, 255, 0.5) 0%,
-  rgba(226, 226, 226, 0.5) 30%,
+  rgba(255, 255, 255, 0) 0%,
+  rgba(226, 226, 226, 0.5) 50%,
   rgba(213, 213, 213, 1) 100%
 );
 
@@ -127,10 +127,25 @@ $--box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.07),
 html,
 body {
   width: 100%;
-  height: 100%;
+  // height: 100%;
   font-family: "Poppins", sans-serif;
   // line-height: 1.5em;
   color: $--text-color;
+}
+
+body {
+  position: relative;
+  height: auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  // justify-content: flex-start;
+  // align-items: center;
+
+  @media screen and (min-width: $--laptop) {
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 ul {
@@ -154,10 +169,7 @@ p {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 1rem;
-  padding: 0.5rem;
-  min-height: 700px;
-  // overflow-y: auto;
-  // background-color: #f8f8f8;
+  padding: 1rem 5vw;
 
   &__app-logo {
     grid-column: 1 / -1;
@@ -165,6 +177,7 @@ p {
     box-shadow: $--box-shadow;
     background-color: white;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     // border: 1px solid lightgray;
@@ -178,13 +191,11 @@ p {
     grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
-    // justify-content: space-between;
     border-radius: 1rem;
-    padding: 1rem;
+    padding: 1.5rem;
     box-shadow: $--box-shadow;
     background-color: white;
     overflow: hidden;
-    // border: 1px solid lightgray;
 
     @media screen and (min-width: $--laptop) {
       grid-column: 1 / 5;
@@ -195,6 +206,7 @@ p {
   &__visualization {
     grid-column: 1 / -1;
     min-height: 30vh;
+    min-height: 300px;
     border-radius: 1rem;
     box-shadow: $--box-shadow;
     overflow: hidden;
@@ -224,8 +236,10 @@ p {
   }
 
   @media screen and (min-width: $--laptop) {
-    height: 100vh;
     padding: 2rem 5vw;
+    min-height: 600px;
+    max-height: 800px;
+    max-width: 1440px;
     // grid-template-rows: auto 300px 1fr;
   }
 }
@@ -277,7 +291,7 @@ p {
   border-radius: 0.5rem;
   border: 1px solid lightgray;
   overflow: hidden;
-  margin-top: 1rem;
+  // margin-top: 1rem;
 
   &__input {
     width: 100%;
@@ -292,6 +306,8 @@ p {
   &__icon {
     padding: 1rem 1rem 1rem 1rem;
     font-size: 24px;
+    display: block;
+    position: relative;
     transition: color 500ms ease, background-color 500ms ease;
 
     &--day {
@@ -530,8 +546,9 @@ p {
 
   &__cloud-image {
     display: block;
-    width: 100%;
-    // height: auto;
+    // width: 100%;
+    min-width: 100%;
+    height: 100%;
     object-fit: cover;
     transition: filter 500ms ease;
 
@@ -560,12 +577,7 @@ p {
     width: 100%;
     height: 100%;
     position: absolute;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(226, 226, 226, 0.4990371148459384) 50%,
-      rgba(213, 213, 213, 1) 100%
-    );
+    background: $--blurry-layer;
   }
 
   &__blurry {
@@ -580,7 +592,8 @@ p {
     width: 100%;
     opacity: 1;
     // height: auto;
-    object-fit: cover;
+    object-fit: fill;
+    object-position: bottom;
     transition: opacity 500ms ease;
 
     &--fog {

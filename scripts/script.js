@@ -169,20 +169,20 @@ const WEATHER_APP = (function () {
     getWeatherData(city, key);
   }
 
-  function changeAppStylesAndValues(data) {
-    let UTC = Math.floor(new Date().getTime() / 1000);
-    let date = new Date().valueOf() / 1000;
-    // let dayOrNight = date < data.sunset ? "day" : "night";
-    let dayOrNight = null;
-    let currUTC = new Date(UTC * 1000);
-    let sunrise = new Date(data.sunrise * 1000);
-    let sunset = new Date(data.sunset * 1000);
-    if (currUTC < sunrise || currUTC > sunset) {
-      console.log("night");
-      dayOrNight = "night";
+  function getDayOrNight(sunrise, sunset) {
+    let UTCDate = Math.floor(new Date().getTime() / 1000);
+    let currTime = new Date(UTCDate * 1000);
+    let sunriseTime = new Date(sunrise * 1000);
+    let sunsetTime = new Date(sunset * 1000);
+    if (currTime < sunriseTime || currTime > sunsetTime) {
+      return "night";
     } else {
-      dayOrNight = "day";
+      return "day";
     }
+  }
+
+  function changeAppStylesAndValues(data) {
+    let dayOrNight = getDayOrNight(data.sunrise, data.sunset);
     let weather = data.mainWeather.toLowerCase();
 
     changeParallax(data);
@@ -594,5 +594,11 @@ const WEATHER_APP = (function () {
   function addListener() {
     searchButton.addEventListener("click", searchWeatherData);
     window.addEventListener("resize", resizeCanvas);
+    searchInput.addEventListener("keyup", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchButton.click();
+      }
+    });
   }
 })();
