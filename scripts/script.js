@@ -467,7 +467,7 @@ const WEATHER_APP = (function () {
       drizzle: { width: 1, minHeight: 10, maxHeight: 20 },
       drizzleRain: { width: 1.5, minHeight: 15, maxHeight: 25 },
       rain: { width: 2, minHeight: 20, maxHeight: 30 },
-      snow: { minRadius: 1, maxRadius: 5 },
+      snow: { minRadius: 0.5, maxRadius: 2.5 },
     };
 
     if (weather == "thunderstorm") {
@@ -635,6 +635,7 @@ const WEATHER_APP = (function () {
     } else if (weather == "snow") {
       isLightning = false;
       isSnowing = true;
+      isRaining = false;
       isAtmosphere = false;
       snowSize.minRadius = particleSizes.snow.minRadius;
       snowSize.maxRadius = particleSizes.snow.maxRadius;
@@ -734,7 +735,11 @@ const WEATHER_APP = (function () {
       particles[i].draw();
       particles[i].update();
 
-      if (particles[i].y > canvas.height) {
+      if (
+        particles[i].y > canvas.height ||
+        particles[i].x > canvas.width ||
+        particles[i].x < 0
+      ) {
         particles.splice(i, 1);
         i--;
       }
