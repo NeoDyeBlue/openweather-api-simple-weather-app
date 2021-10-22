@@ -14,6 +14,7 @@ const WEATHER_APP = (function () {
   );
   var skies = document.querySelectorAll(".c-sky-background");
   var clouds = document.querySelectorAll(".c-visualization__cloud-image");
+  var blurs = document.querySelectorAll(".c-visualization__blurry-image");
   var sun = document.getElementById("sun");
   var moon = document.getElementById("moon");
   var canvas = document.getElementById("canvas");
@@ -148,9 +149,9 @@ const WEATHER_APP = (function () {
       cityName: data.name,
       country: data.sys.country,
       mainWeather: data.weather[0].main,
-      // mainWeather: "Thunderstorm",
       weatherDescription: data.weather[0].description,
-      // weatherDescription: "thunderstorm with heavy drizzle",
+      // mainWeather: "Haze",
+      // weatherDescription: "haze",
       temperature: Math.floor(data.main.temp),
       feelsLike: Math.floor(data.main.feels_like),
       sunrise: data.sys.sunrise,
@@ -227,6 +228,18 @@ const WEATHER_APP = (function () {
       // }
     });
 
+    if (
+      weather == "fog" ||
+      weather == "smoke" ||
+      weather == "haze" ||
+      weather == "mist"
+    ) {
+      blurs.forEach((blur) => {
+        blur.className = blur.classList[0];
+        blur.classList.add(blur.classList[0] + `--${weather}`);
+      });
+    }
+
     labelIcons.forEach((icon) => {
       icon.classList.remove(icon.classList[3]);
       icon.classList.add(icon.classList[2] + `--${dayOrNight}${weather}`);
@@ -269,6 +282,13 @@ const WEATHER_APP = (function () {
       data.mainWeather == "Snow"
     ) {
       parallaxViz = "rain-clouds";
+    } else if (
+      data.mainWeather == "Mist" ||
+      data.mainWeather == "Haze" ||
+      data.mainWeather == "Smoke" ||
+      data.mainWeather == "Fog"
+    ) {
+      parallaxViz = "blurry";
     }
 
     weatherVisualizers.forEach((viz) => {
